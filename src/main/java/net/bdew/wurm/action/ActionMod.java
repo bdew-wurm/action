@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class ActionMod implements WurmMod, Initable, PreInitable {
     private static final Logger logger = Logger.getLogger("ActionMod");
 
-    public static boolean showActionNums = true;
+    public static boolean showActionNums = false;
     public static HeadsUpDisplay hud;
 
     public static void logException(String msg, Throwable e) {
