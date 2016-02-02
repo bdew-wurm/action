@@ -33,7 +33,7 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
                     return true;
                 } else if (data[1].equals("off")) {
                     hud.consoleOutput("Action numbers off");
-                    showActionNums = true;
+                    showActionNums = false;
                     return true;
                 }
             }
