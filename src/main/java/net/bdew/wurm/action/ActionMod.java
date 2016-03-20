@@ -73,7 +73,7 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
                     return true;
                 }
             }
-            hud.consoleOutput("Usage: act <id> {hover|body|tile}");
+            hud.consoleOutput("Usage: act <id> {hover|body|tile|selected}");
             return true;
         }
         return false;
