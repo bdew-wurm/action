@@ -11,6 +11,7 @@ import org.gotti.wurmunlimited.modloader.interfaces.Initable;
 import org.gotti.wurmunlimited.modloader.interfaces.PreInitable;
 import org.gotti.wurmunlimited.modloader.interfaces.WurmMod;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,7 +20,7 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
 
     public static boolean showActionNums = false;
     public static HeadsUpDisplay hud;
-
+    
     public static void logException(String msg, Throwable e) {
         if (logger != null)
             logger.log(Level.SEVERE, msg, e);
@@ -41,39 +42,22 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
             hud.consoleOutput("Usage: act_show {on|off}");
             return true;
         } else if (cmd.equals("act")) {
-            if (data.length == 3) {
-                short id;
-                try {
-                    id = Short.parseShort(data[1]);
-                } catch (Exception e) {
-                    hud.consoleOutput("act: Error parsing id");
-                    return true;
-                }
-                if (data[2].equals("hover")) {
-                    hud.getWorld().sendHoveredAction(new PlayerAction(id, PlayerAction.ANYTHING));
-                    return true;
-                } else if (data[2].equals("body")) {
-                    try {
-                        hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), Reflect.getBodyItem(Reflect.getPaperdollInventory(hud)).getId());
-                    } catch (ReflectiveOperationException e) {
-                        throw new RuntimeException(e);
-                    }
-                    return true;
-                } else if (data[2].equals("tile")) {
-                    hud.getWorld().sendLocalAction(new PlayerAction(id, PlayerAction.ANYTHING));
-                    return true;
-                } else if (data[2].equals("selected")) {
-                    try {
-                        PickableUnit p = Reflect.getSelectedUnit(hud.getSelectBar());
-                        if(p != null)
-                            hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), p.getId());
-                    } catch (ReflectiveOperationException e) {
-                        throw new RuntimeException(e);
-                    }
-                    return true;
+            // Stitch it back together with a ';', without the leading 'act' and get a list of strings split by |
+            final String[] commands = String.join(";", Arrays.copyOfRange(data, 1, data.length)).split("\\|");
+            for(String nextCmd : commands) {
+                // Once again split it apart and parse it
+                final String[] nextCmdSplit = nextCmd.split(";");
+                try { 
+                    if(nextCmdSplit.length == 2)
+                        parseAct(Short.parseShort(nextCmdSplit[0]),nextCmdSplit[1]);
+                    else
+                        hud.consoleOutput("Usage: act <id> {hover|body|tile|selected}[|<id> {...}|...]");
+                } catch (ReflectiveOperationException roe) {
+                    throw new RuntimeException(roe);
+                } catch (NumberFormatException nfe) {
+                    hud.consoleOutput("act: Error parsing id '" + nextCmdSplit[0] + "'");
                 }
             }
-            hud.consoleOutput("Usage: act <id> {hover|body|tile|selected}");
             return true;
         }
         return false;
@@ -111,4 +95,25 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
     public void preInit() {
 
     }
+    
+    private static void parseAct(final short id, final String target) throws ReflectiveOperationException {
+        switch(target) {
+            case "hover":
+                hud.getWorld().sendHoveredAction(new PlayerAction(id, PlayerAction.ANYTHING));
+                break;
+            case "body":
+                hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), Reflect.getBodyItem(Reflect.getPaperdollInventory(hud)).getId());
+                break;
+            case "tile":
+                hud.getWorld().sendLocalAction(new PlayerAction(id, PlayerAction.ANYTHING));
+                break;
+            case "selected":
+                PickableUnit p = Reflect.getSelectedUnit(hud.getSelectBar());
+                if(p != null)
+                    hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), p.getId());
+                break;
+            default:
+                hud.consoleOutput("act: Invalid target keyword '" + target + "'");
+        }        
+    }    
 }
