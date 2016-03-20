@@ -1,6 +1,7 @@
 package net.bdew.wurm.action;
 
 import com.wurmonline.client.console.WurmConsole;
+import com.wurmonline.client.renderer.PickableUnit;
 import com.wurmonline.client.renderer.gui.HeadsUpDisplay;
 import com.wurmonline.shared.constants.PlayerAction;
 import javassist.ClassPool;
@@ -60,6 +61,15 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
                     return true;
                 } else if (data[2].equals("tile")) {
                     hud.getWorld().sendLocalAction(new PlayerAction(id, PlayerAction.ANYTHING));
+                    return true;
+                } else if (data[2].equals("selected")) {
+                    try {
+                        PickableUnit p = Reflect.getSelectedUnit(hud.getSelectBar());
+                        if(p != null)
+                            hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), p.getId());
+                    } catch (ReflectiveOperationException e) {
+                        throw new RuntimeException(e);
+                    }
                     return true;
                 }
             }
