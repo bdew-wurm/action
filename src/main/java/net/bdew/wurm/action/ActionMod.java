@@ -42,11 +42,11 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
             hud.consoleOutput("Usage: act_show {on|off}");
             return true;
         } else if (cmd.equals("act")) {
-            // Stitch it back together with a ';', without the leading 'act' and get a list of strings split by |
-            final String[] commands = String.join(";", Arrays.copyOfRange(data, 1, data.length)).split("\\|");
+            // Stitch it back together with spaces, without the leading 'act' and get a list of strings split by |
+            final String[] commands = String.join(" ", Arrays.copyOfRange(data, 1, data.length)).split("\\|");
             for(String nextCmd : commands) {
-                // Once again split it apart and parse it
-                final String[] nextCmdSplit = nextCmd.split(";");
+                // Remove leading/trailing whitespace, then split it apart and parse it
+                final String[] nextCmdSplit = nextCmd.trim().split(" ");
                 try { 
                     if(nextCmdSplit.length == 2)
                         parseAct(Short.parseShort(nextCmdSplit[0]),nextCmdSplit[1]);
