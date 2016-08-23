@@ -3,6 +3,7 @@ package net.bdew.wurm.action;
 import com.wurmonline.client.console.WurmConsole;
 import com.wurmonline.client.renderer.PickableUnit;
 import com.wurmonline.client.renderer.gui.HeadsUpDisplay;
+import com.wurmonline.mesh.Tiles;
 import com.wurmonline.shared.constants.PlayerAction;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -51,7 +52,7 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
                     if(nextCmdSplit.length == 2)
                         parseAct(Short.parseShort(nextCmdSplit[0]),nextCmdSplit[1]);
                     else
-                        hud.consoleOutput("Usage: act <id> {hover|body|tile|selected}[|<id> {...}|...]");
+                        hud.consoleOutput("Usage: act <id> {hover|body|tile|selected|area}[|<id> {...}|...]");
                 } catch (ReflectiveOperationException roe) {
                     throw new RuntimeException(roe);
                 } catch (NumberFormatException nfe) {
@@ -95,7 +96,21 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
     public void preInit() {
 
     }
-    
+
+    private static void sendAreaAction(final PlayerAction action) {
+        int x = hud.getWorld().getPlayerCurrentTileX();
+        int y = hud.getWorld().getPlayerCurrentTileY();
+        hud.sendAction(action, Tiles.getTileId(x+1, y+1, 0));
+        hud.sendAction(action, Tiles.getTileId(x+1, y+0, 0));
+        hud.sendAction(action, Tiles.getTileId(x+1, y-1, 0));
+        hud.sendAction(action, Tiles.getTileId(x+0, y+1, 0));
+        hud.sendAction(action, Tiles.getTileId(x+0, y+0, 0));
+        hud.sendAction(action, Tiles.getTileId(x+0, y-1, 0));
+        hud.sendAction(action, Tiles.getTileId(x-1, y+1, 0));
+        hud.sendAction(action, Tiles.getTileId(x-1, y+0, 0));
+        hud.sendAction(action, Tiles.getTileId(x-1, y-1, 0));
+    }
+
     private static void parseAct(final short id, final String target) throws ReflectiveOperationException {
         switch(target) {
             case "hover":
@@ -111,6 +126,9 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
                 PickableUnit p = Reflect.getSelectedUnit(hud.getSelectBar());
                 if(p != null)
                     hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), p.getId());
+                break;
+            case "area":
+                sendAreaAction(new PlayerAction(id, PlayerAction.ANYTHING));
                 break;
             default:
                 hud.consoleOutput("act: Invalid target keyword '" + target + "'");
