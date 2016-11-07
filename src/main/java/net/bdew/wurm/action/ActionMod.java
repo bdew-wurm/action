@@ -1,6 +1,5 @@
 package net.bdew.wurm.action;
 
-import com.wurmonline.client.console.WurmConsole;
 import com.wurmonline.client.renderer.PickableUnit;
 import com.wurmonline.client.renderer.gui.HeadsUpDisplay;
 import com.wurmonline.mesh.Tiles;
@@ -21,7 +20,7 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
 
     public static boolean showActionNums = false;
     public static HeadsUpDisplay hud;
-    
+
     public static void logException(String msg, Throwable e) {
         if (logger != null)
             logger.log(Level.SEVERE, msg, e);
@@ -45,12 +44,12 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
         } else if (cmd.equals("act")) {
             // Stitch it back together with spaces, without the leading 'act' and get a list of strings split by |
             final String[] commands = String.join(" ", Arrays.copyOfRange(data, 1, data.length)).split("\\|");
-            for(String nextCmd : commands) {
+            for (String nextCmd : commands) {
                 // Remove leading/trailing whitespace, then split it apart and parse it
                 final String[] nextCmdSplit = nextCmd.trim().split(" ");
-                try { 
-                    if(nextCmdSplit.length == 2)
-                        parseAct(Short.parseShort(nextCmdSplit[0]),nextCmdSplit[1]);
+                try {
+                    if (nextCmdSplit.length == 2)
+                        parseAct(Short.parseShort(nextCmdSplit[0]), nextCmdSplit[1]);
                     else
                         hud.consoleOutput("Usage: act <id> {hover|body|tile|selected|area}[|<id> {...}|...]");
                 } catch (ReflectiveOperationException roe) {
@@ -100,19 +99,19 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
     private static void sendAreaAction(final PlayerAction action) {
         int x = hud.getWorld().getPlayerCurrentTileX();
         int y = hud.getWorld().getPlayerCurrentTileY();
-        hud.sendAction(action, Tiles.getTileId(x+1, y+1, 0));
-        hud.sendAction(action, Tiles.getTileId(x+1, y+0, 0));
-        hud.sendAction(action, Tiles.getTileId(x+1, y-1, 0));
-        hud.sendAction(action, Tiles.getTileId(x+0, y+1, 0));
-        hud.sendAction(action, Tiles.getTileId(x+0, y+0, 0));
-        hud.sendAction(action, Tiles.getTileId(x+0, y-1, 0));
-        hud.sendAction(action, Tiles.getTileId(x-1, y+1, 0));
-        hud.sendAction(action, Tiles.getTileId(x-1, y+0, 0));
-        hud.sendAction(action, Tiles.getTileId(x-1, y-1, 0));
+        hud.sendAction(action, Tiles.getTileId(x + 1, y + 1, 0));
+        hud.sendAction(action, Tiles.getTileId(x + 1, y + 0, 0));
+        hud.sendAction(action, Tiles.getTileId(x + 1, y - 1, 0));
+        hud.sendAction(action, Tiles.getTileId(x + 0, y + 1, 0));
+        hud.sendAction(action, Tiles.getTileId(x + 0, y + 0, 0));
+        hud.sendAction(action, Tiles.getTileId(x + 0, y - 1, 0));
+        hud.sendAction(action, Tiles.getTileId(x - 1, y + 1, 0));
+        hud.sendAction(action, Tiles.getTileId(x - 1, y + 0, 0));
+        hud.sendAction(action, Tiles.getTileId(x - 1, y - 1, 0));
     }
 
     private static void parseAct(final short id, final String target) throws ReflectiveOperationException {
-        switch(target) {
+        switch (target) {
             case "hover":
                 hud.getWorld().sendHoveredAction(new PlayerAction(id, PlayerAction.ANYTHING));
                 break;
@@ -124,14 +123,20 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
                 break;
             case "selected":
                 PickableUnit p = Reflect.getSelectedUnit(hud.getSelectBar());
-                if(p != null)
+                if (p != null)
                     hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), p.getId());
                 break;
             case "area":
                 sendAreaAction(new PlayerAction(id, PlayerAction.ANYTHING));
                 break;
+            case "toolbelt":
+                if (id >= 1 && id <= 10)
+                    hud.setActiveTool(id - 1);
+                else
+                    hud.consoleOutput("act: Invalid toolbelt slot '" + id + "'");
+                break;
             default:
                 hud.consoleOutput("act: Invalid target keyword '" + target + "'");
-        }        
-    }    
+        }
+    }
 }
