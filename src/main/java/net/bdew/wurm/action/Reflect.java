@@ -16,7 +16,10 @@ public class Reflect {
 
     // PaperDollInventory
     static private Field fldBodyItem;
-    
+
+    // Active Tool
+    static private Field fldActiveToolItem;
+
     // Selected Unit
     static private Field fldSelectedUnit;
 
@@ -27,7 +30,10 @@ public class Reflect {
 
         fldBodyItem = PaperDollInventory.class.getDeclaredField("bodyItem");
         fldBodyItem.setAccessible(true);
-        
+
+        fldActiveToolItem = HeadsUpDisplay.class.getDeclaredField("activeToolItem");
+        fldActiveToolItem.setAccessible(true);
+
         fldSelectedUnit = SelectBar.class.getDeclaredField("selectedUnit");
         fldSelectedUnit.setAccessible(true);
     }
@@ -39,7 +45,11 @@ public class Reflect {
     public static InventoryMetaItem getBodyItem(PaperDollInventory pd) throws ReflectiveOperationException {
         return ((PaperDollSlot) fldBodyItem.get(pd)).getItem();
     }
-    
+
+    public static InventoryMetaItem getActiveToolItem(HeadsUpDisplay hud) throws ReflectiveOperationException {
+        return (InventoryMetaItem) fldActiveToolItem.get(hud);
+    }
+
     public static PickableUnit getSelectedUnit(SelectBar s) throws ReflectiveOperationException {
         return (PickableUnit) fldSelectedUnit.get(s);
     }

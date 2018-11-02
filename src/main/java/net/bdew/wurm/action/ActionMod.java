@@ -1,5 +1,6 @@
 package net.bdew.wurm.action;
 
+import com.wurmonline.client.game.inventory.InventoryMetaItem;
 import com.wurmonline.client.renderer.PickableUnit;
 import com.wurmonline.client.renderer.gui.HeadsUpDisplay;
 import com.wurmonline.mesh.Tiles;
@@ -51,7 +52,7 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
                     if (nextCmdSplit.length == 2)
                         parseAct(Short.parseShort(nextCmdSplit[0]), nextCmdSplit[1]);
                     else
-                        hud.consoleOutput("Usage: act <id> {hover|body|tile|selected|area}[|<id> {...}|...]");
+                        hud.consoleOutput("Usage: act <id> {hover|body|hand|tile|selected|area}[|<id> {...}|...]");
                 } catch (ReflectiveOperationException roe) {
                     throw new RuntimeException(roe);
                 } catch (NumberFormatException nfe) {
@@ -120,6 +121,11 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
                 break;
             case "tile":
                 hud.getWorld().sendLocalAction(new PlayerAction(id, PlayerAction.ANYTHING));
+                break;
+            case "hand":
+                InventoryMetaItem t = Reflect.getActiveToolItem(hud);
+                if (t != null)
+                    hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), t.getId());
                 break;
             case "selected":
                 PickableUnit p = Reflect.getSelectedUnit(hud.getSelectBar());
