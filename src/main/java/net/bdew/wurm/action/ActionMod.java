@@ -97,37 +97,68 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
     }
 
     private static void sendAreaAction(final PlayerAction action) {
+        sendLocalAction(action, +1, +1);
+        sendLocalAction(action, +1, +0);
+        sendLocalAction(action, +1, -1);
+
+        sendLocalAction(action, +0, +1);
+        sendLocalAction(action, +0, +0);
+        sendLocalAction(action, +0, -1);
+
+        sendLocalAction(action, -1, +1);
+        sendLocalAction(action, -1, +0);
+        sendLocalAction(action, -1, -1);
+    }
+
+    private static void sendLocalAction(final PlayerAction action, int xo, int yo) {
         int x = hud.getWorld().getPlayerCurrentTileX();
         int y = hud.getWorld().getPlayerCurrentTileY();
-        hud.sendAction(action, Tiles.getTileId(x + 1, y + 1, 0));
-        hud.sendAction(action, Tiles.getTileId(x + 1, y + 0, 0));
-        hud.sendAction(action, Tiles.getTileId(x + 1, y - 1, 0));
-        hud.sendAction(action, Tiles.getTileId(x + 0, y + 1, 0));
-        hud.sendAction(action, Tiles.getTileId(x + 0, y + 0, 0));
-        hud.sendAction(action, Tiles.getTileId(x + 0, y - 1, 0));
-        hud.sendAction(action, Tiles.getTileId(x - 1, y + 1, 0));
-        hud.sendAction(action, Tiles.getTileId(x - 1, y + 0, 0));
-        hud.sendAction(action, Tiles.getTileId(x - 1, y - 1, 0));
+        hud.sendAction(action, Tiles.getTileId(x + xo, y + yo, 0));
     }
 
     private static void parseAct(final short id, final String target) throws ReflectiveOperationException {
+        PlayerAction act = new PlayerAction(id, PlayerAction.ANYTHING);
         switch (target) {
             case "hover":
-                hud.getWorld().sendHoveredAction(new PlayerAction(id, PlayerAction.ANYTHING));
+                hud.getWorld().sendHoveredAction(act);
                 break;
             case "body":
-                hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), Reflect.getBodyItem(Reflect.getPaperdollInventory(hud)).getId());
+                hud.sendAction(act, Reflect.getBodyItem(Reflect.getPaperdollInventory(hud)).getId());
                 break;
             case "tile":
-                hud.getWorld().sendLocalAction(new PlayerAction(id, PlayerAction.ANYTHING));
+                hud.getWorld().sendLocalAction(act);
+                break;
+            case "tile_n":
+                sendLocalAction(act, 0, -1);
+                break;
+            case "tile_w":
+                sendLocalAction(act, -1, 0);
+                break;
+            case "tile_nw":
+                sendLocalAction(act, -1, -1);
+                break;
+            case "tile_ne":
+                sendLocalAction(act, 1, -1);
+                break;
+            case "tile_s":
+                sendLocalAction(act, 0, 1);
+                break;
+            case "tile_e":
+                sendLocalAction(act, 1, 0);
+                break;
+            case "tile_se":
+                sendLocalAction(act, 1, 1);
+                break;
+            case "tile_sw":
+                sendLocalAction(act, -1, 1);
                 break;
             case "selected":
                 PickableUnit p = Reflect.getSelectedUnit(hud.getSelectBar());
                 if (p != null)
-                    hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), p.getId());
+                    hud.sendAction(act, p.getId());
                 break;
             case "area":
-                sendAreaAction(new PlayerAction(id, PlayerAction.ANYTHING));
+                sendAreaAction(act);
                 break;
             case "toolbelt":
                 if (id >= 1 && id <= 10)
