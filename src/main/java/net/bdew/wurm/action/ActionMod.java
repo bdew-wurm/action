@@ -167,7 +167,15 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
                     hud.consoleOutput("act: Invalid toolbelt slot '" + id + "'");
                 break;
             default:
-                hud.consoleOutput("act: Invalid target keyword '" + target + "'");
+                if (target.startsWith("@tb")) {
+                    int slot = Integer.parseInt(target.substring(3));
+                    if (slot >= 1 && slot <= 10)
+                        hud.sendAction(act, hud.getToolBelt().getItemInSlot(slot - 1).getId());
+                    else
+                        hud.consoleOutput("act: Invalid toolbelt slot '" + id + "'");
+                } else {
+                    hud.consoleOutput("act: Invalid target keyword '" + target + "'");
+                }
         }
     }
 }
