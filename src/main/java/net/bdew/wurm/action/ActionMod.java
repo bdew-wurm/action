@@ -180,7 +180,7 @@ public class ActionMod implements WurmClientMod, Initable, PreInitable {
                     if (slot >= 1 && slot <= 10 && hud.getToolBelt().getItemInSlot(slot - 1) != null)
                         hud.sendAction(act, hud.getToolBelt().getItemInSlot(slot - 1).getId());
                     else
-                        hud.consoleOutput("act: Invalid toolbelt slot '" + id + "'");
+                        hud.consoleOutput("act: Invalid toolbelt slot '" + slot + "'");
                 } else {
                     hud.consoleOutput("act: Invalid target keyword '" + target + "'");
                 }
