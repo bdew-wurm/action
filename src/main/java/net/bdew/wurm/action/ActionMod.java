@@ -153,10 +153,12 @@ public class ActionMod implements WurmClientMod, Initable, PreInitable {
             case "tile_sw":
                 sendLocalAction(act, -1, 1);
                 break;
-            case "hand":
+            case "tool":
                 InventoryMetaItem t = Reflect.getActiveToolItem(hud);
                 if (t != null)
-                    hud.sendAction(new PlayerAction(id, PlayerAction.ANYTHING), t.getId());
+                    hud.sendAction(act, t.getId());
+                else
+                    hud.consoleOutput("act: tool modifier requires an active tool selected");
                 break;
             case "selected":
                 PickableUnit p = Reflect.getSelectedUnit(hud.getSelectBar());
@@ -175,7 +177,7 @@ public class ActionMod implements WurmClientMod, Initable, PreInitable {
             default:
                 if (target.startsWith("@tb")) {
                     int slot = Integer.parseInt(target.substring(3));
-                    if (slot >= 1 && slot <= 10)
+                    if (slot >= 1 && slot <= 10 && hud.getToolBelt().getItemInSlot(slot - 1) != null)
                         hud.sendAction(act, hud.getToolBelt().getItemInSlot(slot - 1).getId());
                     else
                         hud.consoleOutput("act: Invalid toolbelt slot '" + id + "'");
