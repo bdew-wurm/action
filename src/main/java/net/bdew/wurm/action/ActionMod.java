@@ -52,7 +52,7 @@ public class ActionMod implements WurmClientMod, Initable, PreInitable {
                     if (nextCmdSplit.length == 2)
                         parseAct(Short.parseShort(nextCmdSplit[0]), nextCmdSplit[1]);
                     else
-                        hud.consoleOutput("Usage: act <id> {hover|body|hand|tile|selected|area}[|<id> {...}|...]");
+                        hud.consoleOutput("Usage: act <id> <modifier>[|<id> <modifier>|...]");
                 } catch (ReflectiveOperationException roe) {
                     throw new RuntimeException(roe);
                 } catch (NumberFormatException nfe) {

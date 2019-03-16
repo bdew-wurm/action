@@ -29,10 +29,12 @@ _Chaining commands will queue actions. You must have high enough ML for the numb
 | ----------- | --------------------------------------------------------------- |
 | `hover`     | Uses the specified action upon the hovered item, object or tile |
 | `body`      | Uses the specified action upon the characters body              |
-| `hand`      | Uses the specified action upon the currently activated item     |
+| `tool`      | Uses the specified action upon the currently activated item     |
 | `selected`  | Uses the specified action upon the selected tile/object         |
 | `tile`      | Uses the specified action on current tile                       |
+| `tile_{dir}`| Uses the specified action on nearby tile (n,e,w,s,ne,nw,se,sw)  |
 | `area`      | Uses the specified action on 3x3 tiles around current tile      |
+| `@tb{n}`    | Uses the specified action on item in toolbelt slot #n           |
 | `toolbar`   | Activates the tool in toolbar slot `<id>`                       |
 
 #### Examples
@@ -41,3 +43,4 @@ _Chaining commands will queue actions. You must have high enough ML for the numb
 | ------------------------------- | ------------------------------------------ |
 | `bind space "act 3 toolbelt \| 154 tile \| 4 toolbelt \| 318 tile"` | Activate slot 3 (say, a shovel) and pack the tile you are standing on, after that it will activate slot 4 (say a rake) and cultivate the same tile |
 | `bind r "act 163 hand"` | Repair your current tool |
+| `bind f "act 183 @tb1"` | Drinks from toolbelt slot #1 (if it contains water) |
