@@ -9,13 +9,13 @@ import javassist.CtClass;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 import org.gotti.wurmunlimited.modloader.interfaces.Initable;
 import org.gotti.wurmunlimited.modloader.interfaces.PreInitable;
-import org.gotti.wurmunlimited.modloader.interfaces.WurmMod;
+import org.gotti.wurmunlimited.modloader.interfaces.WurmClientMod;
 
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ActionMod implements WurmMod, Initable, PreInitable {
+public class ActionMod implements WurmClientMod, Initable, PreInitable {
     private static final Logger logger = Logger.getLogger("ActionMod");
 
     public static boolean showActionNums = false;
@@ -117,7 +117,7 @@ public class ActionMod implements WurmMod, Initable, PreInitable {
     }
 
     private static void parseAct(final short id, final String target) throws ReflectiveOperationException {
-        PlayerAction act = new PlayerAction(id, PlayerAction.ANYTHING);
+        PlayerAction act = new PlayerAction(id, PlayerAction.ANYTHING, "", false);
         switch (target) {
             case "hover":
                 hud.getWorld().sendHoveredAction(act);
