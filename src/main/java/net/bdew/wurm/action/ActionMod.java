@@ -3,6 +3,7 @@ package net.bdew.wurm.action;
 import com.wurmonline.client.game.inventory.InventoryMetaItem;
 import com.wurmonline.client.renderer.PickableUnit;
 import com.wurmonline.client.renderer.gui.HeadsUpDisplay;
+import com.wurmonline.client.renderer.gui.PaperDollSlot;
 import com.wurmonline.mesh.Tiles;
 import com.wurmonline.shared.constants.PlayerAction;
 import javassist.ClassPool;
@@ -124,7 +125,7 @@ public class ActionMod implements WurmClientMod, Initable, PreInitable {
                 hud.getWorld().sendHoveredAction(act);
                 break;
             case "body":
-                hud.sendAction(act, Reflect.getBodyItem(Reflect.getPaperdollInventory(hud)).getId());
+                hud.sendAction(act, Reflect.getBodyItem(hud.getPaperDollInventory()).getId());
                 break;
             case "tile":
                 hud.getWorld().sendLocalAction(act);
@@ -181,6 +182,16 @@ public class ActionMod implements WurmClientMod, Initable, PreInitable {
                         hud.sendAction(act, hud.getToolBelt().getItemInSlot(slot - 1).getId());
                     else
                         hud.consoleOutput("act: Invalid toolbelt slot '" + slot + "'");
+                } else if (target.startsWith("@eq")) {
+                    byte slot = Byte.parseByte(target.substring(3));
+                    PaperDollSlot obj = Reflect.getFrameFromSlotnumber(hud.getPaperDollInventory(), slot);
+                    if (obj == null) {
+                        hud.consoleOutput("act: Invalid equipment slot '" + slot + "'");
+                    } else if (obj.getEquippedItem() == null) {
+                        hud.consoleOutput("act: No item in equipment slot '" + slot + "'");
+                    } else {
+                        hud.sendAction(act, obj.getEquippedItem().getId());
+                    }
                 } else {
                     hud.consoleOutput("act: Invalid target keyword '" + target + "'");
                 }
