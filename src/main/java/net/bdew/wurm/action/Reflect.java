@@ -1,7 +1,9 @@
 package net.bdew.wurm.action;
 
+import com.wurmonline.client.comm.ServerConnectionListenerClass;
 import com.wurmonline.client.game.inventory.InventoryMetaItem;
 import com.wurmonline.client.renderer.PickableUnit;
+import com.wurmonline.client.renderer.cell.GroundItemCellRenderable;
 import com.wurmonline.client.renderer.gui.HeadsUpDisplay;
 import com.wurmonline.client.renderer.gui.PaperDollInventory;
 import com.wurmonline.client.renderer.gui.PaperDollSlot;
@@ -10,6 +12,7 @@ import org.gotti.wurmunlimited.modloader.ReflectionUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Map;
 
 @SuppressWarnings("unchecked")
 public class Reflect {
@@ -23,11 +26,15 @@ public class Reflect {
     // SelectBar
     static private Field fldSelectedUnit;
 
+    // ServerConnectionListenerClass
+    private static Field fldGroundItems;
+
     static public void setup() throws ReflectiveOperationException {
         fldBodyItem = PaperDollInventory.class.getDeclaredField("bodyItem");
         fldActiveToolItem = HeadsUpDisplay.class.getDeclaredField("activeToolItem");
         fldSelectedUnit = SelectBar.class.getDeclaredField("selectedUnit");
-        mGetFrameFromSlotnumber = ReflectionUtil.getMethod(PaperDollInventory.class, "getFrameFromSlotnumber", new Class[]{Byte.class});
+        mGetFrameFromSlotnumber = ReflectionUtil.getMethod(PaperDollInventory.class, "getFrameFromSlotnumber", new Class[]{byte.class});
+        fldGroundItems = ReflectionUtil.getField(ServerConnectionListenerClass.class, "groundItems");
     }
 
     public static InventoryMetaItem getBodyItem(PaperDollInventory pd) throws ReflectiveOperationException {
@@ -44,5 +51,9 @@ public class Reflect {
 
     public static PaperDollSlot getFrameFromSlotnumber(PaperDollInventory pd, byte slot) throws ReflectiveOperationException {
         return ReflectionUtil.callPrivateMethod(pd, mGetFrameFromSlotnumber, slot);
+    }
+
+    public static Map<Long, GroundItemCellRenderable> getGroundItems(ServerConnectionListenerClass conn) throws ReflectiveOperationException {
+        return ReflectionUtil.getPrivateField(conn, fldGroundItems);
     }
 }
