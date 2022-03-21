@@ -35,7 +35,7 @@ _Chaining commands will queue actions. You must have high enough ML for the numb
 | `tile_{dir}`| Uses the specified action on nearby tile (n,e,w,s,ne,nw,se,sw)  |
 | `area`      | Uses the specified action on 3x3 tiles around current tile      |
 | `@tb{n}`    | Uses the specified action on item in toolbelt slot #n           |
-| `toolbar`   | Activates the tool in toolbar slot `<id>`                       |
+| `toolbelt`  | Activates the tool in belt slot `<id>`                          |
 
 #### Examples
 
