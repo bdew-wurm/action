@@ -10,8 +10,13 @@ import com.wurmonline.client.renderer.gui.HeadsUpDisplay;
 import com.wurmonline.client.renderer.gui.PaperDollSlot;
 import com.wurmonline.mesh.Tiles;
 import com.wurmonline.shared.constants.PlayerAction;
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
+import javassist.NotFoundException;
+import javassist.expr.ExprEditor;
+import javassist.expr.MethodCall;
+import org.gotti.wurmunlimited.modloader.classhooks.HookException;
 import org.gotti.wurmunlimited.modloader.classhooks.HookManager;
 import org.gotti.wurmunlimited.modloader.interfaces.Initable;
 import org.gotti.wurmunlimited.modloader.interfaces.PreInitable;
@@ -78,7 +83,8 @@ public class ActionMod implements WurmClientMod, Initable, PreInitable {
             ClassPool classPool = HookManager.getInstance().getClassPool();
 
             CtClass ctPlayerAction = classPool.getCtClass("com.wurmonline.shared.constants.PlayerAction");
-            ctPlayerAction.getMethod("getName", "()Ljava/lang/String;").insertBefore("if (net.bdew.wurm.action.ActionMod.showActionNums) return this.name + \" (\"+this.id+\")\";");
+            ctPlayerAction.getMethod("getName", "()Ljava/lang/String;")
+                    .insertBefore("if (net.bdew.wurm.action.ActionMod.showActionNums) return this.name + \" (\"+this.id+\")\";");
 
             CtClass ctWurmConsole = classPool.getCtClass("com.wurmonline.client.console.WurmConsole");
             ctWurmConsole.getMethod("handleDevInput", "(Ljava/lang/String;[Ljava/lang/String;)Z").insertBefore(
@@ -86,12 +92,51 @@ public class ActionMod implements WurmClientMod, Initable, PreInitable {
             );
 
             // Hook HUD init to setup our stuff
-            HookManager.getInstance().registerHook("com.wurmonline.client.renderer.gui.HeadsUpDisplay", "init", "(II)V", () -> (proxy, method, args) -> {
+            HookManager.getInstance().registerHook("com.wurmonline.client.renderer.gui.HeadsUpDisplay",
+                    "init", "(II)V", () -> (proxy, method, args) -> {
                 method.invoke(proxy, args);
                 hud = (HeadsUpDisplay) proxy;
                 Reflect.setup();
                 return null;
             });
+
+            //Enable quick keybinds for non DEV players
+            try {
+                classPool.get("com.wurmonline.client.renderer.gui.WurmPopup").getDeclaredMethod("startQuickKeybind")
+                        .instrument(getExprEditorForDEVOverwrite());
+            } catch (NotFoundException e) {
+                throw new HookException("Method startQuickKeybind not found in WurmPopup.class. " + e);
+            }
+
+            //Enable quick mousebinds for non DEV players
+            try {
+                classPool.get("com.wurmonline.client.renderer.gui.WurmPopup").getDeclaredMethod("startQuickMousebind")
+                        .instrument(getExprEditorForDEVOverwrite());
+            } catch (NotFoundException e) {
+                throw new HookException("Method startQuickMousebind not found in WurmPopup.class. " + e);
+            }
+
+            //Overwrite some DEV checks to enable binding of all actions
+            try {
+                classPool.get("com.wurmonline.client.console.WurmConsole").getDeclaredMethod("toggleKey")
+                        .instrument(getExprEditorForDEVOverwrite());
+            } catch (NotFoundException e) {
+                throw new HookException("Method toggleKey not found in WurmConsole.class. " + e);
+            }
+
+            try {
+                classPool.get("com.wurmonline.client.renderer.gui.WurmPopup").getDeclaredMethod("rebindPrimary")
+                        .instrument(getExprEditorForDEVOverwrite());
+            } catch (NotFoundException e) {
+                throw new HookException("Method rebindPrimary not found in WurmPopup.class. " + e);
+            }
+
+            try {
+                classPool.get("com.wurmonline.client.renderer.gui.WurmPopup").getDeclaredMethod("updateWithKeybinds")
+                        .instrument(getExprEditorForDEVOverwrite());
+            } catch (NotFoundException e) {
+                throw new HookException("Method updateWithKeybinds not found in WurmPopup.class. " + e);
+            }
 
             logger.fine("Loaded");
         } catch (Throwable e) {
@@ -212,5 +257,18 @@ public class ActionMod implements WurmClientMod, Initable, PreInitable {
                     hud.consoleOutput("act: Invalid target keyword '" + target + "'");
                 }
         }
+    }
+
+    private static ExprEditor getExprEditorForDEVOverwrite() {
+        return new ExprEditor() {
+            @Override
+            public void edit(MethodCall m) throws CannotCompileException {
+                if ("com.wurmonline.client.comm.SimpleServerConnectionClass".equals(m.getClassName())
+                        && m.getMethodName().equals("isDev")) {
+                    String replaceString = "{ $_ = true; }";
+                    m.replace(replaceString);
+                }
+            }
+        };
     }
 }
