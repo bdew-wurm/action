@@ -25,17 +25,18 @@ bind B "act <id> <target> | <id> <target> | <id> <target>"
 ```
 _Chaining commands will queue actions. You must have high enough ML for the number of actions_
 
-| Target      |                                                                 |
-| ----------- | --------------------------------------------------------------- |
-| `hover`     | Uses the specified action upon the hovered item, object or tile |
-| `body`      | Uses the specified action upon the characters body              |
-| `tool`      | Uses the specified action upon the currently activated item     |
-| `selected`  | Uses the specified action upon the selected tile/object         |
-| `tile`      | Uses the specified action on current tile                       |
-| `tile_{dir}`| Uses the specified action on nearby tile (n,e,w,s,ne,nw,se,sw)  |
-| `area`      | Uses the specified action on 3x3 tiles around current tile      |
-| `@tb{n}`    | Uses the specified action on item in toolbelt slot #n           |
-| `toolbelt`  | Activates the tool in belt slot `<id>`                          |
+| Target       |                                                                 |
+|--------------|-----------------------------------------------------------------|
+| `hover`      | Uses the specified action upon the hovered item, object or tile |
+| `body`       | Uses the specified action upon the characters body              |
+| `tool`       | Uses the specified action upon the currently activated item     |
+| `selected`   | Uses the specified action upon the selected tile/object         |
+| `tile`       | Uses the specified action on current tile                       |
+| `tile_{dir}` | Uses the specified action on nearby tile (n,e,w,s,ne,nw,se,sw)  |
+| `area`       | Uses the specified action on 3x3 tiles around current tile      |
+| `trees`      | Like `area` but only affects tree and bush tiles                |
+| `@tb{n}`     | Uses the specified action on item in toolbelt slot #n           |
+| `toolbelt`   | Activates the tool in belt slot `<id>`                          |
 
 #### Examples
 
