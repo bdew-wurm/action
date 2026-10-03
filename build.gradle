@@ -1,32 +1,35 @@
-apply plugin: 'java'
+plugins {
+    id 'java'
+}
 
-group "net.bdew.wurm"
-version "0.9"
+group = 'net.bdew.wurm'
+version = '0.11'
 
 repositories {
     mavenCentral()
     mavenLocal()
-    maven { url "http://gotti.no-ip.org/maven/repository" }
+    maven {
+        url = uri('https://gotti.no-ip.org/maven/repository')
+    }
 }
 
 dependencies {
-    compile 'org.gotti.wurmunlimited:client-modlauncher:0.10.1'
-    compile 'org.gotti.wurmunlimited:client:3594125'
-    compile 'org.gotti.wurmunlimited:common-client:3594125'
+    implementation 'org.gotti.wurmunlimited:client-modlauncher:0.14'
+    implementation 'org.gotti.wurmunlimited:client:3721782'
+    implementation 'org.gotti.wurmunlimited:common-client:3721782'
 }
 
-jar {
-    archiveName "${project.name}.jar"
+tasks.named('jar') {
+    archiveFileName.set("${project.name}.jar")
 }
 
+tasks.register('dist', Zip) {
+    into('mods') {
+        into(project.name) {
+            from(tasks.named('jar'))
+        }
+        from(fileTree(dir: 'mods', include: '*'))
+    }
 
-task dist(type: Zip) {
-    into("mods", {
-        into(project.name, {
-            from jar
-        })
-        from fileTree(dir: 'mods', include: '*')
-    })
-
-    archiveName "${project.name}-${project.version}.zip"
+    archiveFileName.set("${project.name}-${project.version}.zip")
 }
